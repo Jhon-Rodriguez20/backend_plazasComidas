@@ -74,7 +74,19 @@ const leerUsuario = async (usuario)=> {
 
 const misGerentes = async (idGerente) => {
     const connection = await conexion.conexionMysql();
-    const query = "SELECT * FROM usuario WHERE idRol = '2' AND idGerente = ?";
+    const query = `
+        SELECT
+            idUsuario,
+            nombre,
+            celular,
+            email,
+            ocupacion,
+            descripcionTrabajo,
+            idRol,
+            REPLACE(CONCAT('/uploads/usuarios/', REPLACE(urlImagen, ' ', '_')), ' ', '_') AS imgPerfil
+        FROM usuario
+        WHERE idRol = '2' AND idGerente = ?
+    `;
     const [rows] = await connection.query(query, [idGerente]);
     connection.release();
     return rows;
@@ -82,7 +94,19 @@ const misGerentes = async (idGerente) => {
 
 const misEmpleados = async (idGerente) => {
     const connection = await conexion.conexionMysql();
-    const query = "SELECT * FROM usuario WHERE idRol = '3' AND idGerente = ?";
+    const query = `
+        SELECT
+            idUsuario,
+            nombre,
+            celular,
+            email,
+            ocupacion,
+            descripcionTrabajo,
+            idRol,
+            REPLACE(CONCAT('/uploads/usuarios/', REPLACE(urlImagen, ' ', '_')), ' ', '_') AS imgPerfil
+        FROM usuario
+        WHERE idRol = '3' AND idGerente = ?
+    `;
     const [rows] = await connection.query(query, [idGerente]);
     connection.release();
     return rows;
