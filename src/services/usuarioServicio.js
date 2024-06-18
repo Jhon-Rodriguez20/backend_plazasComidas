@@ -24,9 +24,6 @@ const crearUsuario = async (usuario, idUsuario)=> {
     const email = await usuarioRepositorio.buscarCorreo(usuario.email);
     if(email) throw new Error("El correo ya fue registrado.");
 
-    const usuarioLogueado = await usuarioRepositorio.buscarUsuarioById(idUsuario);
-    if (usuarioLogueado == null) throw new Error("No se encuentra el usuario");
-
     usuario.idUsuario = uuidv4();
     usuario.passwordEncp = bcrypt.hashSync(usuario.password, 10);
     usuario.idGerente = idUsuario;
