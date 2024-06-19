@@ -121,6 +121,7 @@ const misRestaurantes = async (idUsuario)=> {
             restaurante.nit,
             restaurante.direccion,
             restaurante.telefono,
+            REPLACE(CONCAT('/uploads/restaurantes/', REPLACE(restaurante.urlImagen, ' ', '_')), ' ', '_') AS imgRestaurante,
             usuario.idUsuario AS idGerente,
             usuario.nombre AS nombreUsuario,
             usuario.celular
