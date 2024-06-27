@@ -4,6 +4,7 @@ const { UsuarioDatosResModel } = require('../models/UsuarioModelo');
 const { RestauranteDatosResModel } = require('../models/RestauranteModelo');
 const multer = require('multer');
 const path = require('path');
+const { PedidoDatosResModel } = require('../models/PedidoModelo');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -130,6 +131,22 @@ const getMisRestaurantes = async (req, res) => {
     }
 }
 
+const getMisPedidos = async (req, res) => {
+
+    try {
+        if(!req.user.error && (req.user.rol === "4")) {
+            const pedidos = await usuarioServicio.leerMisPedidos(req.user.sub);
+            res.status(200).json({ pedidoEntity: pedidos });
+
+        } else {
+            res.status(401).json({ mensaje: 'No tienes permiso para hacer esta petición' });
+        }
+
+    } catch (err) {
+        res.status(404).json({ mensaje: 'Error al leer mis pedidos', error: err.message });
+    }
+}
+
 const postSignin = (req, res) => {
     if (!req.user.error) {
         respuestasHttp.signin(req, res, "", 200);
@@ -139,5 +156,5 @@ const postSignin = (req, res) => {
 }
 
 module.exports = { subirImagen, postUsuarioGerente, postUsuarioEmpleado, postUsuarioCliente,
-    putDescripcionUsuario, getMisGerentes, getMisEmpleados, getMisRestaurantes, postSignin
+    putDescripcionUsuario, getMisGerentes, getMisEmpleados, getMisRestaurantes, getMisPedidos, postSignin
 }

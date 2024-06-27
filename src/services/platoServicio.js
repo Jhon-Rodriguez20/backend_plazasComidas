@@ -18,8 +18,7 @@ const crearPlato = async (plato, idUsuario) => {
 
     if (gerenteUsuario == null) throw new Error("No se encuentra el usuario");
 
-    if (gerentePerteneciente.idUsuario !== gerenteUsuario.idUsuario ||
-        gerentePerteneciente.idRestaurante != plato.restauranteId) {
+    if (gerentePerteneciente.idUsuario !== gerenteUsuario.idUsuario) {
         throw new Error('No se puede crear el plato');
     }
 

@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs');
+const { PedidoDatosResModel } = require('../models/PedidoModelo');
 
 const eliminarImagen = (imgPerfil) => {
     const defaultImage = 'sinImagenPerfil.jpg';
@@ -105,8 +106,41 @@ const leerMisPedidos = async (idUsuario) => {
     const usuario = await usuarioRepositorio.buscarUsuarioById(idUsuario);
     if (usuario === null) throw new Error("No se encuentra el usuario");
 
-    const pedidos = await pedidoRepositorio.misPedidos(usuario.idUsuario);
-    return pedidos;
+    const pedidos = await usuarioRepositorio.misPedidos(usuario.idUsuario);
+    const pedidosMap = new Map();
+
+    pedidos.forEach(detalle => {
+        if (!pedidosMap.has(detalle.idPedido)) {
+            pedidosMap.set(detalle.idPedido, {
+                idPedido: detalle.idPedido,
+                numeroPedido: detalle.numeroPedido,
+                totalPagar: detalle.totalPagar,
+                idEstado: detalle.idEstado,
+                estado: detalle.estado,
+                idMetodoPago: detalle.idMetodoPago,
+                metodoPago: detalle.metodoPago,
+                fechaPedido: detalle.fechaPedido,
+                idUsuario: detalle.idUsuario,
+                idRestaurante: detalle.idRestaurante,
+                nombrePersona: detalle.nombrePersona,
+                celular: detalle.celular,
+                razonSocial: detalle.razonSocial,
+                detalles: []
+            });
+        }
+
+        pedidosMap.get(detalle.idPedido).detalles.push({
+            idDetalle: detalle.idDetalle,
+            idPlato: detalle.idPlato,
+            nombrePlato: detalle.nombrePlato,
+            imgPlato: detalle.imgPlato,
+            cantidad: detalle.cantidad,
+            precio: detalle.precio
+        });
+    });
+
+    const pedidosData = Array.from(pedidosMap.values()).map(pedido => new PedidoDatosResModel(pedido, pedido.detalles));
+    return pedidosData;
 }
 
 const leerUsuarioLogin = async (correo) => {

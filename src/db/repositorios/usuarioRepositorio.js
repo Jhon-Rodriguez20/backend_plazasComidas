@@ -134,6 +134,44 @@ const misRestaurantes = async (idUsuario)=> {
     return rows;
 }
 
+const misPedidos = async (idUsuario)=> {
+    const connection = await conexion.conexionMysql();
+    const query = `
+        SELECT
+            pd.idPedido,
+            pd.numeroPedido,
+            pd.totalPagar,
+            pd.idEstado,
+            pd.fechaPedido,
+            pd.idUsuario,
+            pd.idRestaurante,
+            us.nombre AS nombrePersona,
+            us.celular,
+            rest.razonSocial,
+            dtPd.idDetalle,
+            dtPd.idPlato,
+            dtPd.cantidad,
+            pdMp.idMetodoPago,
+            pdMp.metodoPago,
+            pl.nombrePlato,
+            REPLACE(CONCAT('/uploads/platos/', REPLACE(pl.urlImagen, ' ', '_')), ' ', '_') AS imgPlato,
+            pl.precio,
+            pdEt.idEstado,
+            pdEt.estado
+        FROM pedidoDetalle AS dtPd
+        JOIN pedido AS pd ON dtPd.idPedido = pd.idPedido
+        JOIN pedidoEstado AS pdEt ON pd.idEstado = pdEt.idEstado
+        JOIN pedidoMetodoPago AS pdMp ON pd.idMetodoPago = pdMp.idMetodoPago
+        JOIN plato AS pl ON dtPd.idPlato = pl.idPlato
+        JOIN usuario AS us ON pd.idUsuario = us.idUsuario
+        JOIN restaurante AS rest ON pd.idRestaurante = rest.idRestaurante
+        WHERE us.idUsuario = ?
+    `;
+    const [rows] = await connection.query(query, [idUsuario]);
+    connection.release();
+    return rows;
+}
+
 const buscarCorreo = async (email)=> {
     const connection = await conexion.conexionMysql();
     const query = "SELECT email FROM usuario WHERE email = ?";
@@ -151,5 +189,5 @@ const buscarUsuarioById = async (idUsuario)=> {
 }
 
 module.exports = {crear, actualizar, detalleUsuario, leerUsuarioLogin, leerUsuario,
-    misEmpleados, misGerentes, misRestaurantes, buscarCorreo, buscarUsuarioById
+    misEmpleados, misGerentes, misRestaurantes, misPedidos, buscarCorreo, buscarUsuarioById
 }

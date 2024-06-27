@@ -30,6 +30,10 @@ router.get("/restaurantes/pertenecientes",
     passport.authenticate("jwt", {session: false}),
     usuarioControlador.getMisRestaurantes);
 
+router.get("/pedidos/hechos",
+    passport.authenticate("jwt", {session: false}),
+    usuarioControlador.getMisPedidos);
+
 router.post("/login",
     passport.authenticate("local", {session: false}),
     usuarioControlador.postSignin)
