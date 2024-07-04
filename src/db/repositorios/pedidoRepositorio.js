@@ -59,6 +59,7 @@ const leer = async (idRestaurante) => {
             JOIN usuario AS us ON pd.idUsuario = us.idUsuario
             JOIN restaurante AS rest ON pd.idRestaurante = rest.idRestaurante
             WHERE pd.idRestaurante = ?
+            ORDER BY pd.fechaPedido ASC
         `;
         const [rows] = await connection.query(query, [idRestaurante]);
 

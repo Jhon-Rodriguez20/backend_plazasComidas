@@ -65,9 +65,6 @@ const crearPedido = async (pedido, idUsuario, detallesPedido) => {
 
 const leerPedidos = async (idRestaurante, idUsuario) => {
     const pedidos = await pedidoRepositorio.leer(idRestaurante);
-
-    if(pedidos.length === 0) throw new Error("No hay pedidos a este restaurante");
-
     const usuario = await usuarioRepositorio.buscarUsuarioById(idUsuario);
     if(usuario == null) throw new Error("No se encuentra el usuario");
 

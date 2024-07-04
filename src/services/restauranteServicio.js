@@ -20,9 +20,6 @@ const crearRestaurante = async (restaurante)=> {
 }
 
 const leerRestaurantes = async ()=> {
-    const restaurantes = await restauranteRepositorio.leer();
-    if(restaurantes.length === 0) throw new Error("No hay restaurantes");
-
     return await restauranteRepositorio.leer();
 }
 

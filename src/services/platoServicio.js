@@ -31,9 +31,6 @@ const crearPlato = async (plato, idUsuario) => {
 }
 
 const leerPlatos = async (idRestaurante) => {
-    const platos = await platoRepositorio.leer(idRestaurante);
-    if(platos.length === 0) throw new Error("No hay platos en este restaurante");
-
     return await platoRepositorio.leer(idRestaurante);
 }
 
