@@ -14,6 +14,10 @@ router.post("/crearUsuario/empleado",
 router.post("/crearUsuario/externo",
     usuarioControlador.postUsuarioCliente);
 
+router.get("/informacion/perfil/:id",
+    passport.authenticate("jwt", {session: false}),
+    usuarioControlador.getDetalleUsuario);
+
 router.put("/descripcion/:id",
     passport.authenticate("jwt", {session: false}),
     usuarioControlador.subirImagen, usuarioControlador.putDescripcionUsuario);

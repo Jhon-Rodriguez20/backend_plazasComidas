@@ -36,13 +36,14 @@ const postRestaurante = async (req, res) => {
     }
 }
 
-const getRestaurantes = async (req, res)=> {
-    
-    try {
-        const restaurantes = await restauranteServicio.leerRestaurantes();
-        const losRestaurantes = restaurantes.map(restaurante => new RestauranteDatosResModel(restaurante));
-        res.status(200).json({ restauranteEntity: losRestaurantes });
+const getRestaurantes = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 8;
 
+    try {
+        const { rows, total } = await restauranteServicio.leerRestaurantes(page, pageSize);
+        const losRestaurantes = rows.map(restaurante => new RestauranteDatosResModel(restaurante));
+        res.status(200).json({ restauranteEntity: losRestaurantes, page, pageSize, total });
     } catch (err) {
         res.status(404).json({ mensaje: 'Error al leer los restaurantes', error: err.message });
     }

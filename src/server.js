@@ -25,7 +25,7 @@ const crearCarpetaSiNoExiste = (ruta) => {
 const rutas = [
     'uploads/restaurantes',
     'uploads/platos',
-    'uploads/usuarios',
+    'uploads/usuarios'
 ];
 
 rutas.forEach(ruta => {

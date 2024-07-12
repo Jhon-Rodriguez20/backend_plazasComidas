@@ -18,11 +18,12 @@ const crear = async (restaurante) => {
     }
 }
 
-const leer = async () => {
+const leer = async (page, pageSize) => {
     const connection = await conexion.conexionMysql();
     await connection.beginTransaction();
 
     try {
+        const offset = (page - 1) * pageSize;
         const query = `
             SELECT
                 restaurante.idRestaurante,
@@ -36,10 +37,19 @@ const leer = async () => {
                 usuario.celular
             FROM restaurante
             INNER JOIN usuario ON restaurante.idUsuario = usuario.idUsuario
+            LIMIT ?, ?
         `;
-        const [rows] = await connection.query(query);
+        const [rows] = await connection.query(query, [offset, pageSize]);
+
+        const countQuery = `
+            SELECT COUNT(*) as total
+            FROM restaurante
+        `;
+        const [countRows] = await connection.query(countQuery);
+        const total = countRows[0].total;
+
         await connection.commit();
-        return rows;
+        return { rows, total };
 
     } catch (error) {
         await connection.rollback();

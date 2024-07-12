@@ -4,7 +4,6 @@ const { UsuarioDatosResModel } = require('../models/UsuarioModelo');
 const { RestauranteDatosResModel } = require('../models/RestauranteModelo');
 const multer = require('multer');
 const path = require('path');
-const { PedidoDatosResModel } = require('../models/PedidoModelo');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -25,7 +24,7 @@ const postUsuario = async (req, res, tipoUsuario) => {
     try {
         if(!req.user.error) {
             const {nombre, celular, email, ocupacion, descripcionTrabajo, password, idRol} = req.body;
-            const urlImagen = req.file ? req.file.filename : 'sinImagenPerfil.jpg';
+            const urlImagen = req.file ? req.file.filename : 'sinImagenPerfil.webp';
 
             const usuario = await usuarioServicio.crearUsuario({nombre, celular, email, ocupacion, descripcionTrabajo, password, idRol, urlImagen}, req.user.sub);
             res.status(201).json({ usuarioEntity: new UsuarioDatosResModel(usuario) });
@@ -51,7 +50,7 @@ const postUsuarioCliente = async (req, res) => {
 
     try {
         const { nombre, celular, email, ocupacion, descripcionTrabajo, password, idRol } = req.body;
-        const urlImagen = req.file ? req.file.filename : 'sinImagenPerfil.jpg';
+        const urlImagen = req.file ? req.file.filename : 'sinImagenPerfil.webp';
 
         const usuario = await usuarioServicio.crearUsuario({ nombre, celular, email, ocupacion, descripcionTrabajo, password, idRol, urlImagen });
         res.status(201).json({ usuarioEntity: new UsuarioDatosResModel(usuario) });
@@ -61,20 +60,42 @@ const postUsuarioCliente = async (req, res) => {
     }
 }
 
-const putDescripcionUsuario = async (req, res) => {
+const getDetalleUsuario = async (req, res)=> {
 
     try {
         if(!req.user.error) {
-            const { celular, descripcionTrabajo } = req.body;
-            const urlImagen = req.file.filename;
-
-            const usuario = await usuarioServicio.actualizarDescripcion(req.params.id, { celular, descripcionTrabajo, urlImagen }, req.user.sub);
+            const usuario = await usuarioServicio.detalleUsuario(req.params.id);
             res.status(200).json({ usuarioEntity: new UsuarioDatosResModel(usuario) });
-            
+
         } else {
             res.status(401).json({ mensaje: 'No tienes permiso para hacer esta petición' });
         }
 
+    } catch (error) {
+        res.status(400).json({ mensaje: 'Error al leer el detalle del usuario', error: error.message });
+    }
+}
+
+const putDescripcionUsuario = async (req, res) => {
+    try {
+        if (!req.user.error) {
+            const { celular } = req.body;
+            let urlImagen;
+
+            if (req.file && req.file.filename) {
+                urlImagen = req.file.filename;
+            }
+
+            const datosActualizar = { celular };
+            if (urlImagen) {
+                datosActualizar.urlImagen = urlImagen;
+            }
+
+            const usuario = await usuarioServicio.actualizarDescripcion(req.params.id, datosActualizar, req.user.sub);
+            res.status(200).json({ usuarioEntity: new UsuarioDatosResModel(usuario) });
+        } else {
+            res.status(401).json({ mensaje: 'No tienes permiso para hacer esta petición' });
+        }
     } catch (error) {
         res.status(400).json({ mensaje: 'Error al actualizar la descripción del usuario', error: error.message });
     }
@@ -156,5 +177,5 @@ const postSignin = (req, res) => {
 }
 
 module.exports = { subirImagen, postUsuarioGerente, postUsuarioEmpleado, postUsuarioCliente,
-    putDescripcionUsuario, getMisGerentes, getMisEmpleados, getMisRestaurantes, getMisPedidos, postSignin
+    getDetalleUsuario, putDescripcionUsuario, getMisGerentes, getMisEmpleados, getMisRestaurantes, getMisPedidos, postSignin
 }

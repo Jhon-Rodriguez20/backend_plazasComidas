@@ -7,7 +7,7 @@ const fs = require('fs');
 const { PedidoDatosResModel } = require('../models/PedidoModelo');
 
 const eliminarImagen = (imgPerfil) => {
-    const defaultImage = 'sinImagenPerfil.jpg';
+    const defaultImage = 'sinImagenPerfil.webp';
     if (imgPerfil !== defaultImage) {
         const filePath = path.join(__dirname, '../uploads/usuarios', imgPerfil);
         fs.unlink(filePath, () => {});
@@ -34,14 +34,21 @@ const crearUsuario = async (usuario, idUsuario)=> {
 
 }
 
+const detalleUsuario = async (idUsuario) => {
+    const usuario = await usuarioRepositorio.detalleUsuarioDescripcion(idUsuario);
+    if(!usuario) throw new Error("No se encontró el detalle del usuario");
+
+    return await usuarioRepositorio.detalleUsuarioDescripcion(idUsuario);
+}
+
 const actualizarDescripcion = async (idUsuario, usuario) => {
 
-    if (!usuario.celular || !usuario.descripcionTrabajo) {
+    if (!usuario.celular) {
         throw new Error("Datos vacíos o incorrectos");
     }
 
     const usuarioLogueado = await usuarioRepositorio.buscarUsuarioById(idUsuario);
-    const usuarioDetalle = await usuarioRepositorio.detalleUsuario(idUsuario);
+    const usuarioDetalle = await usuarioRepositorio.detalleUsuarioActualizar(idUsuario);
 
     if (usuarioLogueado == null) throw new Error("No se encuentra el usuario");
 
@@ -49,13 +56,11 @@ const actualizarDescripcion = async (idUsuario, usuario) => {
         throw new Error('No se puede actualizar la descripción del usuario');
     }
 
-    if (usuario.urlImagen && usuarioDetalle.urlImagen !== 'sinImagenPerfil.jpg') {
+    if (usuario.urlImagen && usuarioDetalle.urlImagen !== 'sinImagenPerfil.webp') {
         eliminarImagen(usuarioDetalle.urlImagen);
     }
 
-    usuarioDetalle.celular = usuario.celular;
-    usuarioDetalle.descripcionTrabajo = usuario.descripcionTrabajo;
-    
+    usuarioDetalle.celular = usuario.celular;    
     if (usuario.urlImagen) {
         usuarioDetalle.urlImagen = usuario.urlImagen;
     }
@@ -147,6 +152,6 @@ const leerUsuarioLogin = async (correo) => {
     return await usuarioRepositorio.leerUsuarioLogin(correo);
 }
 
-module.exports = {crearUsuario, actualizarDescripcion, leerMisEmpleados, leerMisGerentes,
+module.exports = {crearUsuario, detalleUsuario, actualizarDescripcion, leerMisEmpleados, leerMisGerentes,
     leerMisPedidos, leerMisRestaurantes, leerUsuarioLogin, leerMisPlatos
 }

@@ -18,9 +18,26 @@ const crear = async (usuario) => {
     }
 }
 
-const detalleUsuario = async (idUsuario)=> {
+const detalleUsuarioActualizar = async (idUsuario)=> {
     const connection = await conexion.conexionMysql();
-    const query = "SELECT * FROM usuario WHERE idUsuario = ?";
+    const query = `SELECT idUsuario, urlImagen FROM usuario WHERE idUsuario = ?`;
+    const [rows] = await connection.query(query, [idUsuario]);
+    connection.release();
+    return rows[0];
+}
+
+const detalleUsuarioDescripcion = async (idUsuario)=> {
+    const connection = await conexion.conexionMysql();
+    const query = `
+        SELECT
+            idUsuario,
+            nombre,
+            celular,
+            email,
+            REPLACE(CONCAT('/uploads/usuarios/', REPLACE(urlImagen, ' ', '_')), ' ', '_') AS imgPerfil
+        FROM usuario
+        WHERE idUsuario = ?
+    `;
     const [rows] = await connection.query(query, [idUsuario]);
     connection.release();
     return rows[0];
@@ -188,6 +205,6 @@ const buscarUsuarioById = async (idUsuario)=> {
     return rows[0];
 }
 
-module.exports = {crear, actualizar, detalleUsuario, leerUsuarioLogin, leerUsuario,
+module.exports = {crear, actualizar, detalleUsuarioActualizar, detalleUsuarioDescripcion, leerUsuarioLogin, leerUsuario,
     misEmpleados, misGerentes, misRestaurantes, misPedidos, buscarCorreo, buscarUsuarioById
 }

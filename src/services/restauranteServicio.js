@@ -11,7 +11,7 @@ const crearRestaurante = async (restaurante)=> {
 
     const nit = await restauranteRepositorio.buscarNit(restaurante.nit);
 
-    if(nit) throw new Error("El NIT del restaurante ya está registrado.")
+    if(nit) throw new Error("El NIT del restaurante ya está registrado.");
 
     restaurante.idRestaurante = uuidv4();
 
@@ -19,8 +19,8 @@ const crearRestaurante = async (restaurante)=> {
     return await restauranteRepositorio.detalle(restaurante.idRestaurante);
 }
 
-const leerRestaurantes = async ()=> {
-    return await restauranteRepositorio.leer();
+const leerRestaurantes = async (page, pageSize) => {
+    return await restauranteRepositorio.leer(page, pageSize);
 }
 
 const detalleRestaurante = async (idRestaurante)=> {
