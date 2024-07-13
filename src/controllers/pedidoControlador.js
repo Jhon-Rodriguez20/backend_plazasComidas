@@ -17,11 +17,13 @@ const postPedido = async (req, res) => {
 }
 
 const getPedidos = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 8;
 
     try {
         if (!req.user.error && req.user.rol === "3") {
-            const pedidos = await pedidoServicio.leerPedidos(req.params.id, req.user.sub);
-            res.status(200).json({ pedidoEntity: pedidos });
+            const { pedidos, total } = await pedidoServicio.leerPedidos(req.params.id, req.user.sub, page, pageSize);
+            res.status(200).json({ pedidoEntity: pedidos, page, pageSize, total });
 
         } else {
             res.status(401).json({ mensaje: 'El usuario no tiene permiso para realizar esta acción' });

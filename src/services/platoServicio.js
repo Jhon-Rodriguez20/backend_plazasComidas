@@ -30,8 +30,8 @@ const crearPlato = async (plato, idUsuario) => {
     return await platoRepositorio.detalle(plato.idPlato);
 }
 
-const leerPlatos = async (idRestaurante) => {
-    return await platoRepositorio.leer(idRestaurante);
+const leerPlatos = async (idRestaurante, page, pageSize) => {
+    return await platoRepositorio.leer(idRestaurante, page, pageSize);
 }
 
 const detallePlato = async (idPlato) => {

@@ -18,11 +18,12 @@ const crear = async (plato) => {
     }
 }
 
-const leer = async (idRestaurante) => {
+const leer = async (idRestaurante, page, pageSize) => {
     const connection = await conexion.conexionMysql();
     await connection.beginTransaction();
 
     try {
+        const offset = (page - 1) * pageSize;
         const query = `
             SELECT
                 pl.idPlato,
@@ -36,11 +37,16 @@ const leer = async (idRestaurante) => {
                 rest.razonSocial AS nombreRestaurante
             FROM plato AS pl
             JOIN restaurante AS rest ON pl.restauranteId = rest.idRestaurante
-            WHERE pl.restauranteId = ?`;
-        const [rows] = await connection.query(query, [idRestaurante]);
+            WHERE pl.restauranteId = ?
+            LIMIT ?, ?`;
+
+        const [rows] = await connection.query(query, [idRestaurante, offset, pageSize]);
+        const countQuery = `SELECT COUNT(*) as total FROM plato`;
+        const [countRows] = await connection.query(countQuery);
+        const total = countRows[0].total;
 
         await connection.commit();
-        return rows;
+        return { rows, total };
 
     } catch (error) {
         await connection.rollback();

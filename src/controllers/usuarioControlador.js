@@ -102,46 +102,48 @@ const putDescripcionUsuario = async (req, res) => {
 }
 
 const getMisGerentes = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 8;
 
     try {
-        if(!req.user.error && req.user.rol === "1") {
-            const gerentes = await usuarioServicio.leerMisGerentes(req.user.sub);
-            const losGerentes = gerentes.map(gerente=> new UsuarioDatosResModel(gerente));
-            res.status(200).json({ usuarioEntity: losGerentes });
-
+        if (!req.user.error && req.user.rol === "1") {
+            const { rows, total } = await usuarioServicio.leerMisGerentes(req.user.sub, page, pageSize);
+            const losGerentes = rows.map(gerente => new UsuarioDatosResModel(gerente));
+            res.status(200).json({ usuarioEntity: losGerentes, page, pageSize, total });
         } else {
             res.status(401).json({ mensaje: 'No tienes permiso para hacer esta petición' });
         }
-
     } catch (err) {
         res.status(404).json({ mensaje: 'Error al leer mis gerentes', error: err.message });
     }
 }
 
 const getMisEmpleados = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 8;
 
     try {
-        if(!req.user.error && req.user.rol === "2") {
-            const empleados = await usuarioServicio.leerMisEmpleados(req.user.sub);
-            const losEmpleados = empleados.map(empleado=> new UsuarioDatosResModel(empleado));
-            res.status(200).json({ usuarioEntity: losEmpleados });
-
+        if (!req.user.error && req.user.rol === "2") {
+            const { rows, total } = await usuarioServicio.leerMisEmpleados(req.user.sub, page, pageSize);
+            const losEmpleados = rows.map(empleado => new UsuarioDatosResModel(empleado));
+            res.status(200).json({ usuarioEntity: losEmpleados, page, pageSize, total });
         } else {
             res.status(401).json({ mensaje: 'No tienes permiso para hacer esta petición' });
         }
-
     } catch (err) {
         res.status(404).json({ mensaje: 'Error al leer mis empleados', error: err.message });
     }
 }
 
 const getMisRestaurantes = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 8;
 
     try {
         if(!req.user.error && (req.user.rol === "2" || req.user.rol === "3")) {
-            const restaurantes = await usuarioServicio.leerMisRestaurantes(req.user.sub);
-            const losRestaurantes = restaurantes.map(restaurante=> new RestauranteDatosResModel(restaurante));
-            res.status(200).json({ restauranteEntity: losRestaurantes });
+            const { rows, total } = await usuarioServicio.leerMisRestaurantes(req.user.sub, page, pageSize);
+            const losRestaurantes = rows.map(restaurante=> new RestauranteDatosResModel(restaurante));
+            res.status(200).json({ restauranteEntity: losRestaurantes, page, pageSize, total });
 
         } else {
             res.status(401).json({ mensaje: 'No tienes permiso para hacer esta petición' });
@@ -153,11 +155,13 @@ const getMisRestaurantes = async (req, res) => {
 }
 
 const getMisPedidos = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 8;
 
     try {
         if(!req.user.error && (req.user.rol === "4")) {
-            const pedidos = await usuarioServicio.leerMisPedidos(req.user.sub);
-            res.status(200).json({ pedidoEntity: pedidos });
+            const { pedidos, total } = await usuarioServicio.leerMisPedidos(req.user.sub, page, pageSize);
+            res.status(200).json({ pedidoEntity: pedidos, page, pageSize, total });
 
         } else {
             res.status(401).json({ mensaje: 'No tienes permiso para hacer esta petición' });

@@ -69,52 +69,41 @@ const actualizarDescripcion = async (idUsuario, usuario) => {
     return await usuarioRepositorio.leerUsuario(usuarioDetalle.idUsuario);
 }
 
-const leerMisRestaurantes = async (idUsuario)=> {
+const leerMisRestaurantes = async (idUsuario, page, pageSize)=> {
     
     const usuario = await usuarioRepositorio.buscarUsuarioById(idUsuario);
     if(usuario == null) throw new Error("No se encuentra el usuario");
         
-    const restaurantes = await usuarioRepositorio.misRestaurantes(usuario.idUsuario);
+    const restaurantes = await usuarioRepositorio.misRestaurantes(usuario.idUsuario, page, pageSize);
     return restaurantes;
 
 }
 
-const leerMisGerentes = async (idUsuario, idRol)=> {
-
+const leerMisGerentes = async (idUsuario, page, pageSize) => {
     const usuario = await usuarioRepositorio.buscarUsuarioById(idUsuario);
-    if(usuario == null) throw new Error("No se encuentra el usuario");
-        
-    const propietarios = await usuarioRepositorio.misGerentes(usuario.idUsuario);
+    if (usuario == null) throw new Error("No se encuentra el usuario");
+    
+    const propietarios = await usuarioRepositorio.misGerentes(usuario.idUsuario, page, pageSize);
     return propietarios;
 }
 
-const leerMisEmpleados = async (idUsuario, idRol) => {
-
+const leerMisEmpleados = async (idUsuario, page, pageSize) => {
     const usuario = await usuarioRepositorio.buscarUsuarioById(idUsuario);
     if (usuario === null) throw new Error("No se encuentra el usuario");
 
-    const empleados = await usuarioRepositorio.misEmpleados(usuario.idUsuario);
+    const empleados = await usuarioRepositorio.misEmpleados(usuario.idUsuario, page, pageSize);
     return empleados;
 }
 
-const leerMisPlatos = async (idUsuario) => {
+const leerMisPedidos = async (idUsuario, page, pageSize) => {
 
     const usuario = await usuarioRepositorio.buscarUsuarioById(idUsuario);
     if (usuario === null) throw new Error("No se encuentra el usuario");
 
-    const platos = await platoRepositorio.misPlatos(usuario.idUsuario);
-    return platos;
-}
-
-const leerMisPedidos = async (idUsuario) => {
-
-    const usuario = await usuarioRepositorio.buscarUsuarioById(idUsuario);
-    if (usuario === null) throw new Error("No se encuentra el usuario");
-
-    const pedidos = await usuarioRepositorio.misPedidos(usuario.idUsuario);
+    const { rows, total } = await usuarioRepositorio.misPedidos(usuario.idUsuario, page, pageSize);
     const pedidosMap = new Map();
 
-    pedidos.forEach(detalle => {
+    rows.forEach(detalle => {
         if (!pedidosMap.has(detalle.idPedido)) {
             pedidosMap.set(detalle.idPedido, {
                 idPedido: detalle.idPedido,
@@ -145,7 +134,7 @@ const leerMisPedidos = async (idUsuario) => {
     });
 
     const pedidosData = Array.from(pedidosMap.values()).map(pedido => new PedidoDatosResModel(pedido, pedido.detalles));
-    return pedidosData;
+    return { pedidos: pedidosData, total };
 }
 
 const leerUsuarioLogin = async (correo) => {
@@ -153,5 +142,5 @@ const leerUsuarioLogin = async (correo) => {
 }
 
 module.exports = {crearUsuario, detalleUsuario, actualizarDescripcion, leerMisEmpleados, leerMisGerentes,
-    leerMisPedidos, leerMisRestaurantes, leerUsuarioLogin, leerMisPlatos
+    leerMisPedidos, leerMisRestaurantes, leerUsuarioLogin
 }

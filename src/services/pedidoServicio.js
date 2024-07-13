@@ -63,14 +63,14 @@ const crearPedido = async (pedido, idUsuario, detallesPedido) => {
     return new PedidoDatosResModel(pedidoData, pedidoData.detalles);
 }
 
-const leerPedidos = async (idRestaurante, idUsuario) => {
-    const pedidos = await pedidoRepositorio.leer(idRestaurante);
+const leerPedidos = async (idRestaurante, idUsuario, page, pageSize) => {
+    const { rows, total } = await pedidoRepositorio.leer(idRestaurante, page, pageSize);
     const usuario = await usuarioRepositorio.buscarUsuarioById(idUsuario);
     if(usuario == null) throw new Error("No se encuentra el usuario");
 
     const pedidosMap = new Map();
 
-    pedidos.forEach(detalle => {
+    rows.forEach(detalle => {
         if (!pedidosMap.has(detalle.idPedido)) {
             pedidosMap.set(detalle.idPedido, {
                 idPedido: detalle.idPedido,
@@ -101,7 +101,7 @@ const leerPedidos = async (idRestaurante, idUsuario) => {
     });
 
     const pedidosData = Array.from(pedidosMap.values()).map(pedido => new PedidoDatosResModel(pedido, pedido.detalles));
-    return pedidosData;
+    return { pedidos: pedidosData, total };
 }
 
 const detallePedido = async (idPedido, idUsuario) => {

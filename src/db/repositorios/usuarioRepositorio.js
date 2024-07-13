@@ -89,49 +89,96 @@ const leerUsuario = async (usuario)=> {
     return rows[0];
 }
 
-const misGerentes = async (idGerente) => {
+const misGerentes = async (idGerente, page, pageSize) => {
     const connection = await conexion.conexionMysql();
-    const query = `
-        SELECT
-            idUsuario,
-            nombre,
-            celular,
-            email,
-            ocupacion,
-            descripcionTrabajo,
-            idRol,
-            REPLACE(CONCAT('/uploads/usuarios/', REPLACE(urlImagen, ' ', '_')), ' ', '_') AS imgPerfil
-        FROM usuario
-        WHERE idRol = '2' AND idGerente = ?
-    `;
-    const [rows] = await connection.query(query, [idGerente]);
-    connection.release();
-    return rows;
+    await connection.beginTransaction();
+
+    try {
+        const offset = (page - 1) * pageSize;
+        const query = `
+            SELECT
+                idUsuario,
+                nombre,
+                celular,
+                email,
+                ocupacion,
+                descripcionTrabajo,
+                idRol,
+                REPLACE(CONCAT('/uploads/usuarios/', REPLACE(urlImagen, ' ', '_')), ' ', '_') AS imgPerfil
+            FROM usuario
+            WHERE idRol = '2' AND idGerente = ?
+            LIMIT ?, ?
+        `;
+        const [rows] = await connection.query(query, [idGerente, offset, pageSize]);
+
+        const countQuery = `
+            SELECT COUNT(*) as total 
+            FROM usuario 
+            WHERE idRol = '2' AND idGerente = ?
+        `;
+        const [countRows] = await connection.query(countQuery, [idGerente]);
+        const total = countRows[0].total;
+
+        await connection.commit();
+        return { rows, total };
+
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+
+    } finally {
+        connection.release();
+    }
 }
 
-const misEmpleados = async (idGerente) => {
+const misEmpleados = async (idGerente, page, pageSize) => {
     const connection = await conexion.conexionMysql();
-    const query = `
-        SELECT
-            idUsuario,
-            nombre,
-            celular,
-            email,
-            ocupacion,
-            descripcionTrabajo,
-            idRol,
-            REPLACE(CONCAT('/uploads/usuarios/', REPLACE(urlImagen, ' ', '_')), ' ', '_') AS imgPerfil
-        FROM usuario
-        WHERE idRol = '3' AND idGerente = ?
-    `;
-    const [rows] = await connection.query(query, [idGerente]);
-    connection.release();
-    return rows;
+    await connection.beginTransaction();
+
+    try {
+        const offset = (page - 1) * pageSize;
+        const query = `
+            SELECT
+                idUsuario,
+                nombre,
+                celular,
+                email,
+                ocupacion,
+                descripcionTrabajo,
+                idRol,
+                REPLACE(CONCAT('/uploads/usuarios/', REPLACE(urlImagen, ' ', '_')), ' ', '_') AS imgPerfil
+            FROM usuario
+            WHERE idRol = '3' AND idGerente = ?
+            LIMIT ?, ?
+        `;
+        const [rows] = await connection.query(query, [idGerente, offset, pageSize]);
+        const countQuery = `
+            SELECT COUNT(*) as total 
+            FROM usuario 
+            WHERE idRol = '3' AND idGerente = ?
+        `;
+        const [countRows] = await connection.query(countQuery, [idGerente]);
+        const total = countRows[0].total;
+
+        await connection.commit();
+        return { rows, total };
+
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+
+    } finally {
+        connection.release();
+    }
 }
 
-const misRestaurantes = async (idUsuario)=> {
+const misRestaurantes = async (idUsuario, page, pageSize)=> {
     const connection = await conexion.conexionMysql();
-    const query = `
+    await connection.beginTransaction();
+
+    try {
+        const offset = (page - 1) * pageSize;
+        const query = `
         SELECT
             restaurante.idRestaurante,
             restaurante.razonSocial,
@@ -146,14 +193,34 @@ const misRestaurantes = async (idUsuario)=> {
         INNER JOIN usuario ON restaurante.idUsuario = usuario.idUsuario
         WHERE usuario.idUsuario = ?
     `;
-    const [rows] = await connection.query(query, [idUsuario]);
-    connection.release();
-    return rows;
+    const [rows] = await connection.query(query, [idUsuario, offset, pageSize]);
+    const countQuery = `
+        SELECT COUNT(*) as total 
+        FROM restaurante
+        WHERE idUsuario = ?
+    `;
+    const [countRows] = await connection.query(countQuery, [idUsuario]);
+    const total = countRows[0].total;
+
+    await connection.commit();
+    return { rows, total };
+
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+
+    } finally {
+        connection.release();
+    }
 }
 
-const misPedidos = async (idUsuario)=> {
+const misPedidos = async (idUsuario, page, pageSize)=> {
     const connection = await conexion.conexionMysql();
-    const query = `
+    await connection.beginTransaction();
+
+    try {
+        const offset = (page - 1) * pageSize;
+        const query = `
         SELECT
             pd.idPedido,
             pd.numeroPedido,
@@ -184,9 +251,21 @@ const misPedidos = async (idUsuario)=> {
         JOIN restaurante AS rest ON pd.idRestaurante = rest.idRestaurante
         WHERE us.idUsuario = ?
     `;
-    const [rows] = await connection.query(query, [idUsuario]);
-    connection.release();
-    return rows;
+    const [rows] = await connection.query(query, [idUsuario, offset, pageSize]);
+    const countQuery = `SELECT COUNT(*) as total FROM pedido WHERE idUsuario = ?`;
+    const [countRows] = await connection.query(countQuery, [idUsuario]);
+    const total = countRows[0].total;
+
+    await connection.commit();
+    return { rows, total };
+
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+
+    } finally {
+        connection.release();
+    }
 }
 
 const buscarCorreo = async (email)=> {

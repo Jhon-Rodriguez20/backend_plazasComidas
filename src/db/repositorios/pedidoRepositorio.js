@@ -24,11 +24,12 @@ const crear = async (pedido, detallesPedido) => {
     }
 }
 
-const leer = async (idRestaurante) => {
+const leer = async (idRestaurante, page, pageSize) => {
     const connection = await conexion.conexionMysql();
     await connection.beginTransaction();
 
     try {
+        const offset = (page - 1) * pageSize;
         const query = `
             SELECT
                 pd.idPedido,
@@ -60,11 +61,16 @@ const leer = async (idRestaurante) => {
             JOIN restaurante AS rest ON pd.idRestaurante = rest.idRestaurante
             WHERE pd.idRestaurante = ?
             ORDER BY pd.fechaPedido ASC
+            LIMIT ?, ?
         `;
-        const [rows] = await connection.query(query, [idRestaurante]);
+        const [rows] = await connection.query(query, [idRestaurante, offset, pageSize]);
+
+        const countQuery = `SELECT COUNT(*) as total FROM pedido WHERE idRestaurante = ?`;
+        const [countRows] = await connection.query(countQuery, [idRestaurante]);
+        const total = countRows[0].total;
 
         await connection.commit();
-        return rows;
+        return { rows, total };
 
     } catch (error) {
         await connection.rollback();

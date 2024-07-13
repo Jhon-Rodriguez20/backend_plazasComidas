@@ -37,11 +37,13 @@ const postPlato = async (req, res) => {
 }
 
 const getPlatos = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 8;
 
     try {
-        const arrayPlatos = await platoServicio.leerPlatos(req.params.id);
-        const losPlatos = arrayPlatos.map(plato => new PlatoDatosResModel(plato));
-        res.status(200).json({ platoEntity: losPlatos });
+        const { rows, total } = await platoServicio.leerPlatos(req.params.id, page, pageSize);
+        const losPlatos = rows.map(plato => new PlatoDatosResModel(plato));
+        res.status(200).json({ platoEntity: losPlatos, page, pageSize, total });
 
     } catch (error) {
         res.status(400).json({ mensaje: 'Error al leer los platos', error: error.message });
