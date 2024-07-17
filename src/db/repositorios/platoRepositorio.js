@@ -41,8 +41,8 @@ const leer = async (idRestaurante, page, pageSize) => {
             LIMIT ?, ?`;
 
         const [rows] = await connection.query(query, [idRestaurante, offset, pageSize]);
-        const countQuery = `SELECT COUNT(*) as total FROM plato`;
-        const [countRows] = await connection.query(countQuery);
+        const countQuery = `SELECT COUNT(*) as total FROM plato WHERE restauranteId = ?`;
+        const [countRows] = await connection.query(countQuery, [idRestaurante]);
         const total = countRows[0].total;
 
         await connection.commit();
